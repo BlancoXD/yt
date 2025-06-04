@@ -88,12 +88,12 @@ def export_video_route():
 # ---------- Niche Discovery ----------
 @app.route("/discover-niche")
 def discover_niche():
-    from core.niche_discovery import fetch_google_trends
+    from core.discover import fetch_google_trends
     return jsonify({"trends": fetch_google_trends()})
 
 @app.route("/autocomplete")
 def autocomplete():
-    from core.niche_discovery import youtube_autocomplete
+    from core.discover import youtube_autocomplete
     q = request.args.get("q", "")
     return jsonify({"suggestions": youtube_autocomplete(q)})
 
