@@ -1,10 +1,9 @@
 import pickle
-import os
-import json
 from pathlib import Path
 from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
 from googleapiclient.http import MediaFileUpload
+from google.auth.transport.requests import Request
 
 SCOPES = ["https://www.googleapis.com/auth/youtube.upload"]
 
