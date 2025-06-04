@@ -1,0 +1,9 @@
+{
+  "elevenlabs_api_key": "sk_cba496886de2274c5c2fa67ad423ced56a4f620aa32e8c47",
+  "voice_id": "Rachel",
+  "openai_api_key": "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",
+  "youtube": {
+    "client_secrets_file": "client_secrets.json",
+    "channel_id": "UC4aGrk6dzdaY5dOu9Q2GXqA"
+  }
+}
