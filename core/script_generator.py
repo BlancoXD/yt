@@ -1,0 +1,31 @@
+import openai
+import json
+
+with open("config.json", "r") as f:
+    config = json.load(f)
+
+openai.api_key = config["openai_api_key"]
+
+def generate_script(topic, style="educational", length="long"):
+    print(f"[Script Generator] Generating script for topic: {topic}")
+    prompt = (
+        f"Write a {length}, {style} YouTube video script about '{topic}'. "
+        f"Make it engaging, informative, and structured with an intro, main points, and conclusion."
+    )
+    
+    try:
+        response = openai.ChatCompletion.create(
+            model="gpt-4",
+            messages=[
+                {"role": "system", "content": "You are a professional YouTube scriptwriter."},
+                {"role": "user", "content": prompt}
+            ],
+            temperature=0.8,
+            max_tokens=2000
+        )
+        script = response["choices"][0]["message"]["content"]
+        return script.strip()
+    
+    except Exception as e:
+        print(f"[Script Generator] Error: {e}")
+        return None

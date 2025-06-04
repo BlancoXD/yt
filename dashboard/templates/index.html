@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>YouTube Automation Dashboard</title>
+  <style>
+    body { font-family: Arial, sans-serif; background: #111; color: #eee; padding: 20px; }
+    h1 { color: #f33; }
+    label { display: block; margin-top: 10px; font-weight: bold; }
+    input, select, button, textarea {
+      margin-top: 5px;
+      padding: 5px;
+      width: 100%;
+      border-radius: 4px;
+      border: none;
+    }
+    button { background-color: #f33; color: #fff; cursor: pointer; margin-top: 15px; }
+    .module-buttons button { margin: 5px 5px 0 0; background: #333; }
+    pre { background: #222; padding: 10px; border-radius: 4px; margin-top: 20px; white-space: pre-wrap; max-height: 300px; overflow-y: scroll; }
+  </style>
+</head>
+<body>
+  <h1>YT Automation Dashboard</h1>
+
+  <h2>Configuration</h2>
+  <div id="config-section"></div>
+
+  <h2>Modules</h2>
+  <div class="module-buttons" id="modules"></div>
+
+  <h2>Auto-Niche Discovery</h2>
+<button onclick="runNicheDiscovery()">🔍 Discover Niches</button>
+<pre id="niche-output">No niche data yet.</pre>
+
+<h2>🧠 Topic Memory</h2>
+<input id="new-topic" placeholder="Enter a topic">
+<button onclick="saveTopic()">➕ Save Topic</button>
+<button onclick="clearTopics()">🧹 Clear All</button>
+<pre id="topics-display">Loading...</pre>
+
+<h2>📺 Build Video Series</h2>
+<button onclick="generateSeries()">⚡ Generate Series</button>
+<pre id="series-display">Click to generate series.</pre>
+
+<h2>📤 Multi-Platform Export</h2>
+<input id="export-path" placeholder="Path to video">
+<select id="platform">
+  <option value="tiktok">TikTok</option>
+  <option value="instagram">Instagram</option>
+  <option value="facebook">Facebook</option>
+</select>
+<button onclick="exportVideo()">🚀 Export</button>
+<pre id="export-result"></pre>
+
+<h2>🔍 Auto Niche Discovery</h2>
+<button onclick="loadTrends()">🧠 Fetch Google Trends</button>
+<pre id="trends-result">No trends yet.</pre>
+
+<input id="auto-topic" placeholder="Enter keyword">
+<button onclick="autoComplete()">🔎 YouTube Autocomplete</button>
+<pre id="auto-result">No results yet.</pre>
+
+
+
+
+  <h2>Status Output</h2>
+  <pre id="output">No output yet.</pre>
+
+  <script>
+    async function loadConfig() {
+      const res = await fetch("/load-config");
+      const config = await res.json();
+      const section = document.getElementById("config-section");
+      section.innerHTML = "";
+      for (const key in config) {
+        if (typeof config[key] === "object") {
+          for (const subKey in config[key]) {
+            section.innerHTML += `
+              <label>${key}.${subKey}</label>
+              <input type="text" id="${key}.${subKey}" value="${config[key][subKey]}" />
+            `;
+          }
+        } else {
+          section.innerHTML += `
+            <label>${key}</label>
+            <input type="text" id="${key}" value="${config[key]}" />
+          `;
+        }
+      }
+      section.innerHTML += `<button onclick="saveConfig()">Save Config</button>`;
+    }
+
+    async function saveConfig() {
+      const inputs = document.querySelectorAll("input");
+      const data = {};
+      inputs.forEach(input => {
+        const keys = input.id.split(".");
+        if (keys.length === 1) {
+          data[keys[0]] = input.value;
+        } else {
+          if (!data[keys[0]]) data[keys[0]] = {};
+          data[keys[0]][keys[1]] = input.value;
+        }
+      });
+      await fetch("/save-config", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data)
+      });
+      alert("Config saved.");
+    }
+
+    async function loadModules() {
+      const res = await fetch("/get-modules");
+      const modules = await res.json();
+      const modContainer = document.getElementById("modules");
+      modContainer.innerHTML = "";
+      modContainer.innerHTML += `<button onclick="runModule('run_all')">▶️ Run All</button>`;
+      modules.forEach(mod => {
+        modContainer.innerHTML += `<button onclick="runModule('${mod}')">${mod}</button>`;
+      });
+    }
+
+    async function runModule(name) {
+      const res = await fetch("/run-module", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ module: name })
+      });
+      const data = await res.json();
+      document.getElementById("output").textContent =
+        `[Status] ${data.status}\n\n${data.output || data.message || data.error}`;
+    }
+
+   async function runNicheDiscovery() {
+  const res = await fetch("/discover-niche");
+  const data = await res.json();
+  let out = "";
+  for (const key in data) {
+    out += `\n[${key}]\n - ${data[key].join("\n - ")}\n`;
+  }
+  document.getElementById("niche-output").textContent = out || "No results.";
+}
+
+async function loadTopics() {
+  const res = await fetch("/topics");
+  const topics = await res.json();
+  document.getElementById("topics-display").textContent = topics.join("\n");
+}
+async function saveTopic() {
+  const topic = document.getElementById("new-topic").value;
+  await fetch("/add-topic", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({topic})
+  });
+  loadTopics();
+}
+async function clearTopics() {
+  await fetch("/clear-topics", {method: "POST"});
+  loadTopics();
+}
+async function generateSeries() {
+  const res = await fetch("/build-series");
+  const series = await res.json();
+  document.getElementById("series-display").textContent = series.join("\n");
+}
+window.onload = loadTopics;
+
+
+async function exportVideo() {
+  const video_path = document.getElementById("export-path").value;
+  const platform = document.getElementById("platform").value;
+  const res = await fetch("/export", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({ video_path, platform })
+  });
+  const result = await res.json();
+  document.getElementById("export-result").textContent = JSON.stringify(result, null, 2);
+}
+
+async function loadTrends() {
+  const res = await fetch("/discover-niche");
+  const data = await res.json();
+  document.getElementById("trends-result").textContent = JSON.stringify(data.trends, null, 2);
+}
+
+async function autoComplete() {
+  const q = document.getElementById("auto-topic").value;
+  const res = await fetch(`/autocomplete?q=${q}`);
+  const data = await res.json();
+  document.getElementById("auto-result").textContent = JSON.stringify(data.suggestions, null, 2);
+}
+
+
+    loadConfig();
+    loadModules();
+  </script>
+</body>
+</html>
