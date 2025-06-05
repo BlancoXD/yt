@@ -16,6 +16,10 @@ def main():
 
     topic = input("🎯 Enter video topic: ").strip()
     script = generate_script(topic)
+    if not script:
+        print("❌ [YT Automation] Failed to generate script. Exiting.")
+        return
+
     title = topic
     voice_path = synthesize_voice(script)
     video_path = create_video(script, voice_path)

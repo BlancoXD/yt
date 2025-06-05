@@ -4,7 +4,7 @@ import json
 with open("config.json", "r") as f:
     config = json.load(f)
 
-openai.api_key = config["openai_api_key"]
+client = openai.OpenAI(api_key=config["openai_api_key"])
 
 def generate_script(topic, style="educational", length="long"):
     print(f"[Script Generator] Generating script for topic: {topic}")
@@ -14,7 +14,7 @@ def generate_script(topic, style="educational", length="long"):
     )
     
     try:
-        response = openai.ChatCompletion.create(
+        response = client.chat.completions.create(
             model="gpt-4",
             messages=[
                 {"role": "system", "content": "You are a professional YouTube scriptwriter."},
@@ -23,7 +23,7 @@ def generate_script(topic, style="educational", length="long"):
             temperature=0.8,
             max_tokens=2000
         )
-        script = response["choices"][0]["message"]["content"]
+        script = response.choices[0].message.content
         return script.strip()
     
     except Exception as e:
