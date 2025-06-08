@@ -1,11 +1,19 @@
 from flask import Flask, request, jsonify, render_template
 import json
 import os
+import sys
 import subprocess
+from pathlib import Path
 
 app = Flask(__name__)
 
-CONFIG_PATH = "config.json"
+# Resolve project root so the app can be started from any directory
+BASE_DIR = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(BASE_DIR))
+
+CORE_DIR = BASE_DIR / "core"
+
+CONFIG_PATH = BASE_DIR / "config.json"
 
 @app.route("/")
 def index():
@@ -33,11 +41,11 @@ def run_module():
 
     try:
         if module_name == "run_all":
-            result = subprocess.run(["python", "main.py"], capture_output=True, text=True)
+            result = subprocess.run(["python", str(BASE_DIR / "main.py")], capture_output=True, text=True)
         elif module_name == "dashboard":
-            result = subprocess.run(["python", "dashboard/app.py"], capture_output=True, text=True)
+            result = subprocess.run(["python", str(Path(__file__).resolve())], capture_output=True, text=True)
         else:
-            result = subprocess.run(["python", f"core/{module_name}.py"], capture_output=True, text=True)
+            result = subprocess.run(["python", str(CORE_DIR / f"{module_name}.py")], capture_output=True, text=True)
 
         return jsonify({
             "status": "done",
@@ -49,7 +57,7 @@ def run_module():
 
 @app.route("/get-modules")
 def get_modules():
-    modules = [f.replace(".py", "") for f in os.listdir("core") if f.endswith(".py")]
+    modules = [f.stem for f in CORE_DIR.glob("*.py")]
     return jsonify(modules)
 
 # ---------- Topic Memory ----------
