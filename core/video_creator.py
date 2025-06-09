@@ -1,4 +1,3 @@
-import json
 import moviepy
 import requests
 import textwrap
@@ -6,10 +5,10 @@ from pathlib import Path
 from uuid import uuid4
 from PIL import Image, ImageDraw, ImageFont
 from moviepy import ImageClip, concatenate_videoclips, CompositeVideoClip, AudioFileClip
+from utils.config import load_config
 
 # Load OpenAI key
-with open("config.json", "r") as f:
-    config = json.load(f)
+config = load_config()
 
 OUTPUT_DIR = Path("core/outputs/videos")
 FRAME_DIR = Path("core/outputs/frames")

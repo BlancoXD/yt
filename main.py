@@ -1,4 +1,4 @@
-import json
+from utils.config import load_config
 from core.script_generator import generate_script
 from core.voiceover import synthesize_voice
 from core.video_creator import create_video
@@ -8,8 +8,7 @@ from core.topic_memory import save_topic
 from core.export import export_video
 from core.a_b_tester import create_multiple_variants
 
-with open("config.json", "r") as f:
-    config = json.load(f)
+config = load_config()
 
 def main():
     print("📽️  [YT Automation] Starting pipeline...")
