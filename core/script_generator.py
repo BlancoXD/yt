@@ -1,8 +1,7 @@
 import openai
-import json
+from utils.config import load_config
 
-with open("config.json", "r") as f:
-    config = json.load(f)
+config = load_config()
 
 client = openai.OpenAI(api_key=config["openai_api_key"])
 

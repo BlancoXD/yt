@@ -1,11 +1,10 @@
 import requests
-import json
 import os
 from pathlib import Path
 from uuid import uuid4
+from utils.config import load_config
 
-with open("config.json", "r") as f:
-    config = json.load(f)
+config = load_config()
 
 ELEVENLABS_API_KEY = config["elevenlabs_api_key"]
 VOICE_ID = config["voice_id"]
