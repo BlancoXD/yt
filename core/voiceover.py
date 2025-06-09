@@ -2,6 +2,11 @@ import requests
 import os
 from pathlib import Path
 from uuid import uuid4
+
+import sys
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+
 from utils.config import load_config
 
 config = load_config()
