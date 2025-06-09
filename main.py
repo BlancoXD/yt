@@ -1,4 +1,4 @@
-import json
+from utils.config import load_config
 from core.script_generator import generate_script
 from core.voiceover import synthesize_voice
 from core.video_creator import create_video
@@ -8,16 +8,15 @@ from core.topic_memory import save_topic
 from core.export import export_video
 from core.a_b_tester import create_multiple_variants
 
-with open("config.json", "r") as f:
-    config = json.load(f)
+config = load_config()
 
 def main():
-    print("📽️  [YT Automation] Starting pipeline...")
+    print("[YT Automation] Starting pipeline...")
 
-    topic = input("🎯 Enter video topic: ").strip()
+    topic = input("Enter video topic: ").strip()
     script = generate_script(topic)
     if not script:
-        print("❌ [YT Automation] Failed to generate script. Exiting.")
+        print("[YT Automation] Failed to generate script. Exiting.")
         return
 
     title = topic
@@ -31,7 +30,7 @@ def main():
     export_video(video_path, "tiktok")
     create_multiple_variants(title)
 
-    print("✅ [YT Automation] Pipeline complete.")
+    print("[YT Automation] Pipeline complete.")
 
 if __name__ == "__main__":
     main()

@@ -1,8 +1,11 @@
 import openai
-import json
+import sys
+from pathlib import Path
 
-with open("config.json", "r") as f:
-    config = json.load(f)
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+from utils.config import load_config
+
+config = load_config()
 
 client = openai.OpenAI(api_key=config["openai_api_key"])
 
